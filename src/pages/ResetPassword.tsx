@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../compone
 export const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
@@ -88,25 +90,35 @@ export const ResetPassword: React.FC = () => {
               <>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-dark">New password</label>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      className="w-full pr-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                    />
+                    <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute inset-y-0 right-2 flex items-center text-gray-600" aria-label="Toggle password visibility">
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-dark">Confirm new password</label>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                    value={confirm}
-                    onChange={e => setConfirm(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      className="w-full pr-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                      value={confirm}
+                      onChange={e => setConfirm(e.target.value)}
+                    />
+                    <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute inset-y-0 right-2 flex items-center text-gray-600" aria-label="Toggle password visibility">
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
