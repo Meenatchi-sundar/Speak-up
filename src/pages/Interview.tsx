@@ -16,7 +16,8 @@ const SYSTEM_PROMPT = (domain: string) =>
   `You are conducting a mock interview for the role: ${domain}. Ask one relevant question at a time. After the candidate answers, give brief honest feedback (1-2 sentences: what was good, what to improve) BEFORE asking the next question. Keep questions realistic for actual interviews in this domain. Do NOT ask more than 8 questions total — after that, wrap up politely.`;
 
 async function callChat(payload: { system: string; messages?: Message[]; prompt?: string }) {
-  const res = await fetch('/api/chat', {
+  // Use the dedicated interview proxy to avoid route/method issues
+  const res = await fetch('/api/interview', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

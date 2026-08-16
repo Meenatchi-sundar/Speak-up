@@ -116,15 +116,50 @@ export const Practice: React.FC = () => {
   const [saved, setSaved] = useState(false);
 
   // Load & shuffle a fresh set of 10 questions when category changes
-  const startNewSession = (cat: string = category) => {
-    const bank = QUESTION_BANKS[cat] ?? [];
-    setQuestions(shuffle(bank).slice(0, QUESTIONS_PER_SESSION));
+  const generateTenseQuestions = async (): Promise<Question[] | null> => {
+    try {
+      const prompt = `Generate ${QUESTIONS_PER_SESSION} multiple-choice grammar questions covering different English tenses. Return a JSON array of objects each with keys: q, options (array of 4), answer (exact matching option), explanation. Keep options short and ensure only one correct answer. Example output: [{"q":"She ___ to school.","options":["go","goes","gone","going"],"answer":"goes","explanation":"..."}, ...]`;
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ system: 'You are a helpful English tutor that outputs valid JSON only.', prompt }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const text = data.text || '';
+      // Try to extract JSON from the response
+      const start = text.indexOf('[');
+      const end = text.lastIndexOf(']');
+      if (start === -1 || end === -1) return null;
+      const jsonStr = text.slice(start, end + 1);
+      const parsed = JSON.parse(jsonStr) as Question[];
+      // Basic validation
+      if (!Array.isArray(parsed) || parsed.length === 0) return null;
+      return parsed.slice(0, QUESTIONS_PER_SESSION);
+    } catch (err) {
+      console.error('generateTenseQuestions error', err);
+      return null;
+    }
+  };
+
+  const startNewSession = async (cat: string = category) => {
     setCurrentQ(0);
     setScore(0);
     setSelected('');
     setShowFeedback(false);
     setSessionDone(false);
     setSaved(false);
+
+    if (cat === 'Tenses') {
+      const generated = await generateTenseQuestions();
+      if (generated && generated.length > 0) {
+        setQuestions(generated);
+        return;
+      }
+    }
+
+    const bank = QUESTION_BANKS[cat] ?? [];
+    setQuestions(shuffle(bank).slice(0, QUESTIONS_PER_SESSION));
   };
 
   useEffect(() => {
