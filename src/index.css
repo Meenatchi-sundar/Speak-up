@@ -11,7 +11,9 @@
 /* Lightweight CSS-only animated nature background */
 .nature-background {
   position: relative;
-  overflow: hidden;
+  /* allow page vertical scrolling while keeping decorative leaves contained horizontally */
+  overflow-x: hidden;
+  overflow-y: auto;
   /* more subtle gradient */
   background: linear-gradient(180deg, rgba(234,246,238,0.45) 0%, rgba(255,255,255,0) 50%);
 }
