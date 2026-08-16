@@ -16,16 +16,31 @@ export const ResetPassword: React.FC = () => {
     // Try to capture the session from the URL (Supabase provides the access token in the redirect)
     (async () => {
       try {
-        // storeSession:true will save the session if present in the URL
-        const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true });
-        if (error) {
-          console.error('Error parsing session from URL:', error);
-          setError('Invalid or expired reset link.');
-          setReady(false);
+        // First try to read an existing session (Supabase may have stored it after redirect)
+        const { data: sessionData, error: getSessionError } = await supabase.auth.getSession();
+        if (getSessionError) {
+          console.error('Error getting session:', getSessionError);
+        }
+        if (sessionData?.session) {
+          setReady(true);
           return;
         }
-        // If we have a session, allow the user to set a new password
-        setReady(true);
+
+        // If no session yet, listen for the PASSWORD_RECOVERY event
+        const { data: subData } = supabase.auth.onAuthStateChange((event) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            setReady(true);
+          }
+        });
+
+        // cleanup subscription when unmounting
+        return () => {
+          try {
+            subData?.subscription?.unsubscribe?.();
+          } catch (e) {
+            // ignore
+          }
+        };
       } catch (err) {
         console.error(err);
         setError('Invalid or expired reset link.');
