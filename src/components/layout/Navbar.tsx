@@ -16,21 +16,21 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-secondary px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-      <div className="flex items-center space-x-6">
-        <Link to={user ? "/dashboard" : "/"} className="text-xl font-bold text-primary flex items-center gap-2">
+    <nav className="bg-white border-b border-secondary px-4 py-3 flex flex-wrap items-center justify-between sticky top-0 z-10">
+      <div className="flex items-center space-x-4 flex-1 min-w-0">
+        <Link to={user ? "/dashboard" : "/"} className="text-xl font-bold text-primary flex items-center gap-2 truncate">
           <BookOpen className="h-6 w-6" />
-          SpeakUp Practice
+          <span className="truncate">SpeakUp Practice</span>
         </Link>
         {user && profile?.goal && (
-          <div className="hidden md:flex space-x-4 ml-6">
+          <div className="hidden md:flex space-x-4 ml-4">
             <Link to="/dashboard" className="text-gray-600 hover:text-primary flex items-center gap-1 font-medium"><Home size={18}/> Dashboard</Link>
             <Link to="/progress" className="text-gray-600 hover:text-primary flex items-center gap-1 font-medium"><BarChart2 size={18}/> Progress</Link>
           </div>
         )}
       </div>
-      
-      <div className="flex items-center space-x-4">
+
+      <div className="flex items-center space-x-3 mt-2 md:mt-0">
         {user && (
           <button 
             onClick={toggleMute}
@@ -54,9 +54,9 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="space-x-3">
+          <div className="flex items-center gap-3">
             <Link to="/login" className="text-primary font-medium hover:underline">Login</Link>
-            <Link to="/register" className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Get Started</Link>
+            <Link to="/register" className="bg-primary text-white px-3 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Get Started</Link>
           </div>
         )}
       </div>

@@ -331,10 +331,12 @@ export const Practice: React.FC = () => {
         </CardContent>
 
         {showFeedback && (
-          <CardFooter className="justify-end">
-            <Button onClick={nextQuestion}>
-              {currentQ + 1 < questions.length ? 'Next Question →' : 'See Results'}
-            </Button>
+          <CardFooter className="justify-end sticky bottom-0 bg-white md:static z-20 p-4">
+            <div className="w-full max-w-3xl mx-auto">
+              <Button onClick={nextQuestion} className="w-full md:w-auto">
+                {currentQ + 1 < questions.length ? 'Next Question →' : 'See Results'}
+              </Button>
+            </div>
           </CardFooter>
         )}
       </Card>
