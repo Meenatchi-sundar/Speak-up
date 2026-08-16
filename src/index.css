@@ -7,3 +7,52 @@
     @apply text-dark bg-white font-sans;
   }
 }
+
+/* Lightweight CSS-only animated nature background */
+.nature-background {
+  position: relative;
+  overflow: hidden;
+  /* more subtle gradient */
+  background: linear-gradient(180deg, rgba(234,246,238,0.45) 0%, rgba(255,255,255,0) 50%);
+}
+
+.nature-background .leaf {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.06; /* overall lower opacity for subtle effect */
+  will-change: transform;
+  pointer-events: none;
+}
+
+.nature-background .leaf-1 { left: 4%; top: -14%; animation: leaf-fall 22s linear infinite; transform-origin: center; }
+.nature-background .leaf-2 { left: 38%; top: -20%; animation: leaf-fall 30s linear infinite; transform-origin: center; width:38px; height:38px; opacity:0.05; }
+.nature-background .leaf-3 { left: 72%; top: -16%; animation: leaf-fall 26s linear infinite; transform-origin: center; width:50px; height:50px; opacity:0.065; }
+
+.nature-background .leaf-1 { animation-delay: -5s; }
+.nature-background .leaf-2 { animation-delay: -12s; }
+.nature-background .leaf-3 { animation-delay: -18s; }
+
+.nature-background .leaf-1,
+.nature-background .leaf-2,
+.nature-background .leaf-3 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%233B7A57' d='M12 2c-2 2-4 4-6 6 2 0 4 1 6 3 2-2 4-3 6-3-2-2-4-4-6-6z'/%3E%3C/svg%3E");
+}
+
+@keyframes leaf-fall {
+  0% { transform: translateY(-10vh) rotate(-6deg) scale(0.96); opacity: 0.05; }
+  35% { transform: translateY(20vh) rotate(8deg) scale(1); opacity: 0.08; }
+  70% { transform: translateY(60vh) rotate(-40deg) scale(0.98); opacity: 0.09; }
+  100% { transform: translateY(110vh) rotate(180deg) scale(0.96); opacity: 0.05; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nature-background .leaf { animation: none; opacity: 0.06; }
+}
+
+/* subtle focus ring using primary color */
+input:focus {
+  box-shadow: 0 0 0 4px rgba(59,122,87,0.08);
+}

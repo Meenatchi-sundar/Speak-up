@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
@@ -9,6 +10,7 @@ export const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -38,6 +40,13 @@ export const Register: React.FC = () => {
         id: data.user.id,
         name: name
       });
+      // Send a welcome/confirmation email via serverless API (best-effort, do not block)
+      void fetch('/api/send-welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name })
+      }).catch(err => console.error('send-welcome error', err));
+
       navigate('/onboarding');
     } else {
       setLoading(false);
@@ -75,13 +84,18 @@ export const Register: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-dark">Password</label>
-              <input 
-                type="password" 
-                required 
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  required 
+                  className="w-full pr-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute inset-y-0 right-2 flex items-center text-gray-600" aria-label="Toggle password visibility">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
           </CardContent>
           <CardFooter className="flex-col gap-4">

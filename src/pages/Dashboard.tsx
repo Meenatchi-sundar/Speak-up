@@ -15,6 +15,10 @@ export const Dashboard: React.FC = () => {
   const [streak, setStreak] = useState(0);
   const [motivation, setMotivation] = useState('');
   const [loadingMotiv, setLoadingMotiv] = useState(false);
+  const [query, setQuery] = useState('');
+  const [askResult, setAskResult] = useState('');
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState('');
 
   useEffect(() => {
     fetchStats();
@@ -76,6 +80,35 @@ export const Dashboard: React.FC = () => {
     setLoadingMotiv(false);
   };
 
+  const handleAsk = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!query || query.trim().length === 0) return;
+    setAskLoading(true);
+    setAskError('');
+    setAskResult('');
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: "You are an expert English language tutor. Answer the user's question clearly with a simple explanation, the grammar rule or structure if relevant, 2–3 example sentences, and common mistakes to avoid. Keep the answer well-organized and easy to understand for a non-native English learner.",
+          prompt: query
+        })
+      });
+      const data = await res.json();
+      if (data?.text) {
+        setAskResult(data.text);
+        speak(data.text);
+      } else if (data?.error) {
+        setAskError(data.error || 'No response');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setAskError(err?.message || 'Request failed');
+    }
+    setAskLoading(false);
+  };
+
   // Circular progress SVG
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
@@ -83,6 +116,24 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <form onSubmit={handleAsk} className="bg-white p-4 rounded-2xl shadow-sm border border-secondary flex items-center gap-3">
+        <input
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Ask Anything You Want — grammar, vocab, speaking, interview, writing..."
+          className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <Button type="submit" disabled={askLoading}>{askLoading ? 'Thinking...' : 'Ask'}</Button>
+      </form>
+      {askError && <p className="text-sm text-red-500">{askError}</p>}
+      {askResult && (
+        <Card>
+          <CardContent className="p-4">
+            <h4 className="font-bold mb-2">Answer</h4>
+            <div className="text-gray-800 whitespace-pre-wrap">{askResult}</div>
+          </CardContent>
+        </Card>
+      )}
       <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-2xl shadow-sm border border-secondary">
         <div>
           <h1 className="text-3xl font-bold text-dark">Welcome back, {profile?.name?.split(' ')[0] || 'User'}!</h1>

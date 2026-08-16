@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
@@ -7,9 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../compone
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const resetSuccess = (location.state as any)?.resetSuccess;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +38,7 @@ export const Login: React.FC = () => {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
+            {resetSuccess && <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm">Your password has been reset. Please login with your new password.</div>}
             {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">{error}</div>}
             <div className="space-y-2">
               <label className="text-sm font-medium text-dark">Email</label>
@@ -47,13 +52,21 @@ export const Login: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-dark">Password</label>
-              <input 
-                type="password" 
-                required 
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  required 
+                  className="w-full pr-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute inset-y-0 right-2 flex items-center text-gray-600" aria-label="Toggle password visibility">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              <div className="flex justify-end mt-2">
+                <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-primary">Forgot Password?</Link>
+              </div>
             </div>
           </CardContent>
           <CardFooter className="flex-col gap-4">
