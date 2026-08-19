@@ -68,8 +68,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(response.status).json({ error: data.error?.message || 'Gemini API Error', detail: data });
     }
 
-    // Extract text per the path provided: response.candidates[0].content.parts[0].text
-    const text = data?.candidates?.[0]?.content?.parts?.[0] ?? (data?.candidates?.[0]?.content?.parts ?? []).join('') || '';
+    // Robust extraction: handle several possible Gemini response shapes
+    const extractText = (d: any) => {
+      if (!d) return null;
+      // candidates -> content -> parts
+      const cand = d.candidates?.[0];
+      if (cand) {
+        const content = cand.content ?? cand.output ?? cand;
+        // content may be object with parts array
+        if (content?.parts && Array.isArray(content.parts)) {
+          return content.parts.map((p: any) => (typeof p === 'string' ? p : p.text ?? '')).join('');
+        }
+        // content may be array of objects
+        if (Array.isArray(content)) {
+          return content.map((c: any) => (c?.text ?? (typeof c === 'string' ? c : ''))).join('');
+        }
+        // content may be string
+        if (typeof content === 'string') return content;
+      }
+      // output style: d.output[0].content[0].text
+      if (d.output && Array.isArray(d.output) && d.output[0]?.content) {
+        const first = d.output[0].content[0];
+        if (first?.text) return first.text;
+      }
+      // direct text field
+      if (d?.text) return d.text;
+      return null;
+    };
+
+    const text = extractText(data);
+    if (!text) {
+      console.error('[chat] Unexpected Gemini response shape', JSON.stringify(data));
+      return res.status(502).json({ error: 'Unexpected Gemini response shape', detail: data });
+    }
+
     return res.status(200).json({ text });
   } catch (error: any) {
     console.error('[chat] Unexpected server error:', error);

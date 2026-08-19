@@ -54,7 +54,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(response.status).json({ error: data.error?.message || 'Gemini API Error', detail: data });
     }
 
-    const text = data?.candidates?.[0]?.content?.parts?.[0] ?? (data?.candidates?.[0]?.content?.parts ?? []).join('') || '';
+    const extractText = (d: any) => {
+      if (!d) return null;
+      const cand = d.candidates?.[0];
+      if (cand) {
+        const content = cand.content ?? cand.output ?? cand;
+        if (content?.parts && Array.isArray(content.parts)) {
+          return content.parts.map((p: any) => (typeof p === 'string' ? p : p.text ?? '')).join('');
+        }
+        if (Array.isArray(content)) {
+          return content.map((c: any) => (c?.text ?? (typeof c === 'string' ? c : ''))).join('');
+        }
+        if (typeof content === 'string') return content;
+      }
+      if (d.output && Array.isArray(d.output) && d.output[0]?.content) {
+        const first = d.output[0].content[0];
+        if (first?.text) return first.text;
+      }
+      if (d?.text) return d.text;
+      return null;
+    };
+
+    const text = extractText(data);
+    if (!text) {
+      console.error('[interview] Unexpected Gemini response shape', JSON.stringify(data));
+      return res.status(502).json({ error: 'Unexpected Gemini response shape', detail: data });
+    }
+
     return res.status(200).json({ text });
   } catch (error: any) {
     console.error('[interview] Unexpected server error:', error);
