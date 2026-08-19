@@ -18,14 +18,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Missing Gemini API Key on server' });
     }
 
-    const anthropicMessages = messages && messages.length > 0
+    const conversationMessages = messages && messages.length > 0
       ? messages
       : [{ role: 'user', content: prompt || 'Hello' }];
 
     // Build a single prompt preserving system and conversation
     let finalPrompt = '';
     if (system) finalPrompt += `System: ${system}\n\n`;
-    for (const m of anthropicMessages) {
+    for (const m of conversationMessages) {
       finalPrompt += `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n`;
     }
 

@@ -5,7 +5,7 @@ A full-stack web application designed to help users improve their communication 
 ## Tech Stack
 - Frontend: React + Vite + TailwindCSS
 - Backend/Auth/DB: Supabase (Postgres + RLS)
-- AI Engine: Anthropic Claude API (Vercel Serverless Function)
+- AI Engine: Google Gemini API (Vercel Serverless Function)
 - Voice: Web Speech API (SpeechSynthesis & SpeechRecognition)
 
 ## Setup Instructions
@@ -23,11 +23,11 @@ A full-stack web application designed to help users improve their communication 
 3. **Environment Variables**
    - Copy `.env.example` to `.env` or `.env.local`
    - Fill in your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-   - Add your `ANTHROPIC_API_KEY`.
+   - Add your `GEMINI_API_KEY`.
 
 4. **Run Locally**
    To test the frontend:
    ```bash
    npm run dev
    ```
-   *Note: Since the Claude API uses a serverless function (`api/chat.ts`), you may need to deploy to Vercel or use `vercel dev` locally to test the AI responses. Vite's default dev server does not natively run Vercel Serverless functions.*
+   *Note: Since the Gemini API uses serverless functions under `api/`, you may need to deploy to Vercel or use `vercel dev` locally to test the AI responses. Vite's default dev server does not natively run Vercel Serverless functions.*
