@@ -30,14 +30,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const body = {
-      prompt: {
-        contents: [
-          { type: 'text', text: finalPrompt }
-        ]
-      },
-      temperature: 0.2,
-      maxOutputTokens: 1024,
-      candidateCount: 1,
+      contents: [
+        {
+          parts: [
+            { text: finalPrompt }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 1024,
+        candidateCount: 1,
+      }
     };
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`;

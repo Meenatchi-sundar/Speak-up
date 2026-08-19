@@ -35,20 +35,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const body = {
-      // Using Gemini Flash model endpoint
-      // NOTE: the API key is passed as a query parameter below
-      prompt: {
-        // 'contents' array per project convention — each item with a text field
-        contents: [
-          {
-            type: 'text',
-            text: finalPrompt,
-          },
-        ],
-      },
-      temperature: 0.2,
-      maxOutputTokens: 1024,
-      candidateCount: 1,
+      // Top-level contents array with parts per Gemini spec
+      contents: [
+        {
+          parts: [
+            { text: finalPrompt }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 1024,
+        candidateCount: 1,
+      }
     };
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
