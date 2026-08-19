@@ -65,7 +65,7 @@ export const Dashboard: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system: "You are a motivational coach. Give this user specific, encouraging motivation based on their actual recent practice pattern—not generic quotes. Be brief, punchy, and highly encouraging.",
+          system: "You are a warm, human motivational coach. Acknowledge the user's recent progress and feelings, and give 2-3 specific, actionable next steps tailored to their goal and current practice (streak and effort). Keep it concise, encouraging, and practical—no generic platitudes.",
           prompt: `User goal: ${profile?.goal}. Streak: ${streak} days. Today's effort: ${effort}%. Motivate me!`
         })
       });
@@ -91,7 +91,7 @@ export const Dashboard: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system: "You are an expert English language tutor. Answer the user's question clearly with a simple explanation, the grammar rule or structure if relevant, 2–3 example sentences, and common mistakes to avoid. Keep the answer well-organized and easy to understand for a non-native English learner.",
+          system: "You are an expert mentor. If the user asks about learning a technical or non-English topic, return a concise step-by-step study plan (topics in order, brief why each matters, suggested time/resource). If the user asks an English question, give a simple explanation, the relevant grammar rule if any, 2–3 example sentences, and common mistakes to avoid. Keep responses practical, structured, and brief.",
           prompt: query
         })
       });
