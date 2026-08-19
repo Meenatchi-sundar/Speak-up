@@ -17,43 +17,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { prompt, system, messages } = req.body;
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.error('[chat] Missing ANTHROPIC_API_KEY environment variable');
-      return res.status(500).json({ error: 'Missing Anthropic API Key on server' });
+      console.error('[chat] Missing GEMINI_API_KEY environment variable');
+      return res.status(500).json({ error: 'Missing Gemini API Key on server' });
     }
 
-    // Build messages array — if caller passes full conversation, use that;
-    // otherwise wrap the single prompt as a user turn.
-    const anthropicMessages = messages && messages.length > 0
-      ? messages
-      : [{ role: 'user', content: prompt || 'Hello' }];
+    // Build a single prompt string preserving system/messages content
+    let finalPrompt = '';
+    if (system) finalPrompt += `System: ${system}\n\n`;
+    if (messages && Array.isArray(messages) && messages.length > 0) {
+      for (const m of messages) {
+        finalPrompt += `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n`;
+      }
+    } else if (prompt) {
+      finalPrompt += `User: ${prompt}`;
+    }
 
-    const payload = {
-      model: 'claude-sonnet-4-5',
-      max_tokens: 1024,
-      ...(system ? { system } : {}),
-      messages: anthropicMessages,
+    const body = {
+      // Using Gemini Flash model endpoint
+      // NOTE: the API key is passed as a query parameter below
+      prompt: {
+        // 'contents' array per project convention — each item with a text field
+        contents: [
+          {
+            type: 'text',
+            text: finalPrompt,
+          },
+        ],
+      },
+      temperature: 0.2,
+      maxOutputTokens: 1024,
+      candidateCount: 1,
     };
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('[chat] Anthropic API error:', JSON.stringify(data));
-      return res.status(response.status).json({ error: data.error?.message || 'Anthropic API Error', detail: data });
+      console.error('[chat] Gemini API error:', JSON.stringify(data));
+      return res.status(response.status).json({ error: data.error?.message || 'Gemini API Error', detail: data });
     }
 
-    const text = data.content?.[0]?.text ?? '';
+    // Extract text per the path provided: response.candidates[0].content.parts[0].text
+    const text = data?.candidates?.[0]?.content?.parts?.[0] ?? (data?.candidates?.[0]?.content?.parts ?? []).join('') || '';
     return res.status(200).json({ text });
   } catch (error: any) {
     console.error('[chat] Unexpected server error:', error);
